@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageTags>c#, core, simple, queuing</PackageTags>
+    <Copyright>https://github.com/muhammet-kandemir-95</Copyright>
+    <PackageProjectUrl>https://github.com/muhammet-kandemir-95/dmuka3.CS.Simple.Queuing</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/muhammet-kandemir-95/dmuka3.CS.Simple.Queuing</RepositoryUrl>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DocumentationFile>C:\Users\k8a1n\mpf\projects\github\dmuka3.CS.Simple.Queuing\dmuka3.CS.Simple.Queuing\dmuka3.CS.Simple.Queuing.xml</DocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="dmuka3.CS.Simple.RSA" Version="1.0.1" />
+    <PackageReference Include="dmuka3.CS.Simple.Semaphore" Version="1.0.1" />
+    <PackageReference Include="dmuka3.CS.Simple.TCP" Version="1.0.2" />
+  </ItemGroup>
+
+</Project>

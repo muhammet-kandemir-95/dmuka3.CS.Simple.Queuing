@@ -1,0 +1,169 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>dmuka3.CS.Simple.Queuing</name>
+    </assembly>
+    <members>
+        <member name="T:dmuka3.CS.Simple.Queuing.QueuingClient">
+            <summary>
+            Client for enqueue and dequeue.
+            </summary>
+        </member>
+        <member name="F:dmuka3.CS.Simple.Queuing.QueuingClient.__wrongProtocolException">
+            <summary>
+            Wrong protocol exception.
+            </summary>
+        </member>
+        <member name="P:dmuka3.CS.Simple.Queuing.QueuingClient.HostName">
+            <summary>
+            Server's host name.
+            </summary>
+        </member>
+        <member name="P:dmuka3.CS.Simple.Queuing.QueuingClient.Port">
+            <summary>
+            Server's port.
+            </summary>
+        </member>
+        <member name="F:dmuka3.CS.Simple.Queuing.QueuingClient._client">
+            <summary>
+            TCP client.
+            </summary>
+        </member>
+        <member name="F:dmuka3.CS.Simple.Queuing.QueuingClient._conn">
+            <summary>
+            For dmuka protocol.
+            </summary>
+        </member>
+        <member name="F:dmuka3.CS.Simple.Queuing.QueuingClient._rsaClient">
+            <summary>
+            RSA for client side.
+            </summary>
+        </member>
+        <member name="F:dmuka3.CS.Simple.Queuing.QueuingClient._rsaServer">
+            <summary>
+            RSA for server side.
+            </summary>
+        </member>
+        <member name="M:dmuka3.CS.Simple.Queuing.QueuingClient.#ctor(System.String,System.Int32)">
+            <summary>
+            Create an instance.
+            </summary>
+            <param name="hostName">Server's host name.</param>
+            <param name="port">Server's port.</param>
+        </member>
+        <member name="M:dmuka3.CS.Simple.Queuing.QueuingClient.Start(System.String,System.String,System.Int32)">
+            <summary>
+            Connect the server.
+            </summary>
+            <param name="userName">Server authentication user name.</param>
+            <param name="password">Server authentication password.</param>
+            <param name="sslDwKeySize">SSL key size as bit.</param>
+        </member>
+        <member name="M:dmuka3.CS.Simple.Queuing.QueuingClient.Enqueue(System.String)">
+            <summary>
+            Add a new value to queue.
+            </summary>
+            <param name="body">Queue's body.</param>
+            <returns></returns>
+        </member>
+        <member name="M:dmuka3.CS.Simple.Queuing.QueuingClient.Dequeue">
+            <summary>
+            Get a new value from queue.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:dmuka3.CS.Simple.Queuing.QueuingClient.DequeueCompleted(System.String)">
+            <summary>
+            Remove a new value on queue.
+            </summary>
+            <param name="queueName">Queue's name.</param>
+            <returns></returns>
+        </member>
+        <member name="M:dmuka3.CS.Simple.Queuing.QueuingClient.Dispose">
+            <summary>
+            Dispose.
+            </summary>
+        </member>
+        <member name="T:dmuka3.CS.Simple.Queuing.QueuingMessages">
+            <summary>
+            Protocol messages.
+            </summary>
+        </member>
+        <member name="T:dmuka3.CS.Simple.Queuing.QueuingServer">
+            <summary>
+            Server to manage queues.
+            </summary>
+        </member>
+        <member name="P:dmuka3.CS.Simple.Queuing.QueuingServer.Port">
+            <summary>
+            Server port.
+            </summary>
+        </member>
+        <member name="P:dmuka3.CS.Simple.Queuing.QueuingServer.TimeOutAuth">
+            <summary>
+            Time out auth as second.
+            </summary>
+        </member>
+        <member name="P:dmuka3.CS.Simple.Queuing.QueuingServer.UserName">
+            <summary>
+            Server authentication user name.
+            </summary>
+        </member>
+        <member name="P:dmuka3.CS.Simple.Queuing.QueuingServer.Password">
+            <summary>
+            Server authentication password.
+            </summary>
+        </member>
+        <member name="P:dmuka3.CS.Simple.Queuing.QueuingServer.CoreCount">
+            <summary>
+            Maximum connection count at the same time processing.
+            </summary>
+        </member>
+        <member name="P:dmuka3.CS.Simple.Queuing.QueuingServer.SSLDwKeySize">
+            <summary>
+            SSL key size as bit.
+            </summary>
+        </member>
+        <member name="F:dmuka3.CS.Simple.Queuing.QueuingServer._listener">
+            <summary>
+            Server.
+            </summary>
+        </member>
+        <member name="F:dmuka3.CS.Simple.Queuing.QueuingServer._actionQueueConnections">
+            <summary>
+            Manage the semaphore for connections.
+            </summary>
+        </member>
+        <member name="F:dmuka3.CS.Simple.Queuing.QueuingServer.QueuesDirectory">
+            <summary>
+            Queues files' directory path.
+            </summary>
+        </member>
+        <member name="F:dmuka3.CS.Simple.Queuing.QueuingServer._fileCounter">
+            <summary>
+            Avoid to cross same time queue.
+            </summary>
+        </member>
+        <member name="M:dmuka3.CS.Simple.Queuing.QueuingServer.#ctor(System.String,System.String,System.Int32,System.Int32,System.Int32,System.Int32)">
+            <summary>
+            Instance server.
+            </summary>
+            <param name="userName">Server authentication user name.</param>
+            <param name="password">Server authentication password.</param>
+            <param name="sslDwKeySize">SSL key size as bit.</param>
+            <param name="coreCount">Maximum connection count at the same time processing.</param>
+            <param name="port">Server port.</param>
+            <param name="timeOutAuth">Time out auth as second.</param>
+        </member>
+        <member name="M:dmuka3.CS.Simple.Queuing.QueuingServer.Start">
+            <summary>
+            Start the server as sync.
+            </summary>
+        </member>
+        <member name="M:dmuka3.CS.Simple.Queuing.QueuingServer.Dispose">
+            <summary>
+            Dispose.
+            </summary>
+        </member>
+    </members>
+</doc>
