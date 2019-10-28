@@ -26,10 +26,12 @@ Thread.Sleep(1000);
 
 // Client to enqueue.
 QueuingClient client1 = new QueuingClient("127.0.0.1", 9090);
+// Connect to the server.
 client1.Start("muhammed", "123123", 2048);
 
 // Client to dequeue.
 QueuingClient client2 = new QueuingClient("127.0.0.1", 9090);
+// Connect to the server.
 client2.Start("muhammed", "123123", 2048);
 
 // Queue's data.
@@ -61,4 +63,6 @@ server.Dispose();
 
 Assert.AreEqual(sendedBody, gotBody);
   ```
+  
+  You may wonder what is the "2048". It is key size of RSA. We always use RSA during communication on TCP. This is security to save your secret datas.
   
