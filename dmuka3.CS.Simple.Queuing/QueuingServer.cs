@@ -215,11 +215,8 @@ namespace dmuka3.CS.Simple.Queuing
                                 else if (clientProcess.StartsWith(QueuingMessages.CLIENT_DEQUEUE_COMPLETED))
                                 {
                                     // - IF PROCESS TYPE IS "DEQUEUE COMPLETED"
-                                    //      CLIENT : DEQUEUE_COMPLETED
-                                    //      CLIENT : queue_name
-                                    var queueName = Encoding.UTF8.GetString(
-                                                        rsaServer.Decrypt(conn.Receive())
-                                                        );
+                                    //      CLIENT : DEQUEUE_COMPLETED <queue_name>
+                                    var queueName = clientProcess.Split('<')[1].Split('>')[0];
 
                                     try
                                     {

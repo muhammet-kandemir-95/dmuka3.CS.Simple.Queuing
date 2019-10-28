@@ -223,21 +223,17 @@ namespace dmuka3.CS.Simple.Queuing
         /// <returns></returns>
         public void DequeueCompleted(string queueName)
         {
+            if (queueName.Contains('<') || queueName.Contains('>'))
+                throw new Exception("QueueName can't containt '<' or '>'!");
+
             lock (lockObj)
             {
                 // - IF PROCESS TYPE IS "DEQUEUE COMPLETED"
-                //      CLIENT : DEQUEUE_COMPLETED
+                //      CLIENT : DEQUEUE_COMPLETED <queue_name>
                 this._conn.Send(
                     this._rsaServer.Encrypt(
                         Encoding.UTF8.GetBytes(
-                            $"{QueuingMessages.CLIENT_DEQUEUE_COMPLETED}"
-                            )));
-
-                //      CLIENT : queue_name
-                this._conn.Send(
-                    this._rsaServer.Encrypt(
-                        Encoding.UTF8.GetBytes(
-                            queueName
+                            $"{QueuingMessages.CLIENT_DEQUEUE_COMPLETED} <{queueName}>"
                             )));
 
                 //      SERVER : END
