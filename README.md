@@ -1,6 +1,6 @@
 # dmuka3.CS.Simple.Queuing
 
- This library provides you to consume queue by order. It is working on disk. You can see the queue on file explorer.
+ This library provides you to consume queue by order. It is working on disk. This library is like **RabbitMQ**. You can see the queue on file explorer.
  
  ## Nuget
  **Link** : https://www.nuget.org/packages/dmuka3.CS.Simple.Queuing
