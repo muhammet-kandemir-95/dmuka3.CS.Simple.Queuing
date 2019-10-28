@@ -8,7 +8,7 @@
     <Copyright>https://github.com/muhammet-kandemir-95</Copyright>
     <PackageProjectUrl>https://github.com/muhammet-kandemir-95/dmuka3.CS.Simple.Queuing</PackageProjectUrl>
     <RepositoryUrl>https://github.com/muhammet-kandemir-95/dmuka3.CS.Simple.Queuing</RepositoryUrl>
-    <Version>1.0.1</Version>
+    <Version>1.0.2</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -16,9 +16,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="dmuka3.CS.Simple.RSA" Version="1.0.1" />
     <PackageReference Include="dmuka3.CS.Simple.Semaphore" Version="1.0.1" />
-    <PackageReference Include="dmuka3.CS.Simple.TCP" Version="1.0.2" />
+    <PackageReference Include="dmuka3.CS.Simple.TCP" Version="1.0.3" />
   </ItemGroup>
 
 </Project>

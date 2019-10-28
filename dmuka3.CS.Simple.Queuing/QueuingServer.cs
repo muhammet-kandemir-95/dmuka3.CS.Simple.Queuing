@@ -46,9 +46,9 @@ namespace dmuka3.CS.Simple.Queuing
         public int CoreCount { get; private set; }
 
         /// <summary>
-        /// SSL key size as bit.
+        /// RSA key size as bit.
         /// </summary>
-        public int SSLDwKeySize { get; private set; }
+        public int RSADwKeySize { get; private set; }
 
         /// <summary>
         /// Server.
@@ -77,16 +77,16 @@ namespace dmuka3.CS.Simple.Queuing
         /// </summary>
         /// <param name="userName">Server authentication user name.</param>
         /// <param name="password">Server authentication password.</param>
-        /// <param name="sslDwKeySize">SSL key size as bit.</param>
+        /// <param name="rsaDwKeySize">SSL key size as bit.</param>
         /// <param name="coreCount">Maximum connection count at the same time processing.</param>
         /// <param name="port">Server port.</param>
         /// <param name="timeOutAuth">Time out auth as second.</param>
-        public QueuingServer(string userName, string password, int sslDwKeySize, int coreCount, int port, int timeOutAuth = 1)
+        public QueuingServer(string userName, string password, int rsaDwKeySize, int coreCount, int port, int timeOutAuth = 1)
         {
             this.UserName = userName;
             this.Password = password;
             this.TimeOutAuth = timeOutAuth;
-            this.SSLDwKeySize = sslDwKeySize;
+            this.RSADwKeySize = rsaDwKeySize;
             this._listener = new TcpListener(IPAddress.Any, port);
             this._actionQueueConnections = new ActionQueue(coreCount);
         }
@@ -100,7 +100,6 @@ namespace dmuka3.CS.Simple.Queuing
         {
             this._actionQueueConnections.Start();
             this._listener.Start();
-            var rsaServer = new RSAKey(this.SSLDwKeySize);
 
             while (true)
             {
@@ -126,22 +125,11 @@ namespace dmuka3.CS.Simple.Queuing
                                 QueuingMessages.SERVER_HI
                                 ));
 
-                        // CLIENT : public_key
-                        var clientPublicKey = Encoding.UTF8.GetString(
-                                                conn.Receive(maxPackageSize: 10240, timeOutSecond: this.TimeOutAuth)
-                                                );
-                        var rsaClient = new RSAKey(clientPublicKey);
-
-                        // SERVER : public_key
-                        conn.Send(
-                            rsaClient.Encrypt(
-                                Encoding.UTF8.GetBytes(
-                                    rsaServer.PublicKey
-                                    )));
+                        conn.StartDMUKA3RSA(this.RSADwKeySize);
 
                         // CLIENT : HI <user_name> <password>
                         var clientHi = Encoding.UTF8.GetString(
-                                            rsaServer.Decrypt(conn.Receive(timeOutSecond: this.TimeOutAuth))
+                                            conn.Receive(timeOutSecond: this.TimeOutAuth)
                                             );
                         var splitClientHi = clientHi.Split('<');
                         var clientHiUserName = splitClientHi[1].Split('>')[0];
@@ -151,10 +139,9 @@ namespace dmuka3.CS.Simple.Queuing
                             // - IF AUTH FAIL
                             //      SERVER : NOT_AUTHORIZED
                             conn.Send(
-                                rsaClient.Encrypt(
-                                    Encoding.UTF8.GetBytes(
-                                        QueuingMessages.SERVER_NOT_AUTHORIZED
-                                        )));
+                                Encoding.UTF8.GetBytes(
+                                    QueuingMessages.SERVER_NOT_AUTHORIZED
+                                    ));
                             conn.Dispose();
                         }
                         else
@@ -162,16 +149,15 @@ namespace dmuka3.CS.Simple.Queuing
                             // - IF AUTH PASS
                             //      SERVER : OK
                             conn.Send(
-                                rsaClient.Encrypt(
-                                    Encoding.UTF8.GetBytes(
-                                        QueuingMessages.SERVER_OK
-                                        )));
+                                Encoding.UTF8.GetBytes(
+                                    QueuingMessages.SERVER_OK
+                                    ));
 
                             while (true)
                             {
                                 var clientProcess = Encoding.UTF8.GetString(
-                                                    rsaServer.Decrypt(conn.Receive())
-                                                    );
+                                                        conn.Receive()
+                                                        );
 
                                 #region ENQUEUE
                                 if (clientProcess.StartsWith(QueuingMessages.CLIENT_ENQUEUE))
@@ -180,7 +166,7 @@ namespace dmuka3.CS.Simple.Queuing
                                     //      CLIENT : ENQUEUE
                                     //      CLIENT : data
                                     var data = Encoding.UTF8.GetString(
-                                                        rsaServer.Decrypt(conn.Receive())
+                                                        conn.Receive()
                                                         );
 
                                     try
@@ -196,19 +182,17 @@ namespace dmuka3.CS.Simple.Queuing
                                     catch (Exception ex)
                                     {
                                         conn.Send(
-                                            rsaClient.Encrypt(
-                                                Encoding.UTF8.GetBytes(
-                                                    $"{QueuingMessages.SERVER_ERROR} <{nameof(QueuingMessages.CLIENT_ENQUEUE)}.Executing> \"{ex.ToString().Replace("\"", "\\\"")}\""
-                                                    )));
+                                            Encoding.UTF8.GetBytes(
+                                                $"{QueuingMessages.SERVER_ERROR} <{nameof(QueuingMessages.CLIENT_ENQUEUE)}.Executing> \"{ex.ToString().Replace("\"", "\\\"")}\""
+                                                ));
                                         continue;
                                     }
 
                                     //      SERVER : END
                                     conn.Send(
-                                        rsaClient.Encrypt(
-                                            Encoding.UTF8.GetBytes(
-                                                QueuingMessages.SERVER_END
-                                                )));
+                                        Encoding.UTF8.GetBytes(
+                                            QueuingMessages.SERVER_END
+                                            ));
                                 }
                                 #endregion
                                 #region DEQUEUE_COMPLETED
@@ -227,19 +211,17 @@ namespace dmuka3.CS.Simple.Queuing
                                     catch (Exception ex)
                                     {
                                         conn.Send(
-                                            rsaClient.Encrypt(
-                                                Encoding.UTF8.GetBytes(
-                                                    $"{QueuingMessages.SERVER_ERROR} <{nameof(QueuingMessages.CLIENT_DEQUEUE)}.Executing> \"{ex.ToString().Replace("\"", "\\\"")}\""
-                                                    )));
+                                            Encoding.UTF8.GetBytes(
+                                                $"{QueuingMessages.SERVER_ERROR} <{nameof(QueuingMessages.CLIENT_DEQUEUE)}.Executing> \"{ex.ToString().Replace("\"", "\\\"")}\""
+                                                ));
                                         continue;
                                     }
 
                                     //      SERVER : END
                                     conn.Send(
-                                        rsaClient.Encrypt(
-                                            Encoding.UTF8.GetBytes(
-                                                QueuingMessages.SERVER_END
-                                                )));
+                                        Encoding.UTF8.GetBytes(
+                                            QueuingMessages.SERVER_END
+                                            ));
                                 }
                                 #endregion
                                 #region DEQUEUE
@@ -270,33 +252,29 @@ namespace dmuka3.CS.Simple.Queuing
                                     catch (Exception ex)
                                     {
                                         conn.Send(
-                                            rsaClient.Encrypt(
-                                                Encoding.UTF8.GetBytes(
-                                                    $"{QueuingMessages.SERVER_ERROR} <{nameof(QueuingMessages.CLIENT_DEQUEUE)}.Executing> \"{ex.ToString().Replace("\"", "\\\"")}\""
-                                                    )));
+                                            Encoding.UTF8.GetBytes(
+                                                $"{QueuingMessages.SERVER_ERROR} <{nameof(QueuingMessages.CLIENT_DEQUEUE)}.Executing> \"{ex.ToString().Replace("\"", "\\\"")}\""
+                                                ));
                                         continue;
                                     }
 
                                     //      SERVER : queue_name
                                     conn.Send(
-                                        rsaClient.Encrypt(
-                                            Encoding.UTF8.GetBytes(
-                                                Path.GetFileName(queueFilePath)
-                                                )));
+                                        Encoding.UTF8.GetBytes(
+                                            Path.GetFileName(queueFilePath)
+                                            ));
 
                                     //      SERVER : data
                                     conn.Send(
-                                        rsaClient.Encrypt(
-                                            Encoding.UTF8.GetBytes(
-                                                queueFileContext
-                                                )));
+                                        Encoding.UTF8.GetBytes(
+                                            queueFileContext
+                                            ));
 
                                     //      SERVER : END
                                     conn.Send(
-                                        rsaClient.Encrypt(
-                                            Encoding.UTF8.GetBytes(
-                                                QueuingMessages.SERVER_END
-                                                )));
+                                        Encoding.UTF8.GetBytes(
+                                            QueuingMessages.SERVER_END
+                                            ));
                                 }
                                 #endregion
                                 #region CLOSE

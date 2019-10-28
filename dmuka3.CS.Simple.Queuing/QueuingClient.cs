@@ -39,16 +39,6 @@ namespace dmuka3.CS.Simple.Queuing
         /// For dmuka protocol.
         /// </summary>
         private TCPClientConnection _conn = null;
-
-        /// <summary>
-        /// RSA for client side.
-        /// </summary>
-        private RSAKey _rsaClient = null;
-
-        /// <summary>
-        /// RSA for server side.
-        /// </summary>
-        private RSAKey _rsaServer = null;
         #endregion
 
         #region Constructors
@@ -72,8 +62,8 @@ namespace dmuka3.CS.Simple.Queuing
         /// </summary>
         /// <param name="userName">Server authentication user name.</param>
         /// <param name="password">Server authentication password.</param>
-        /// <param name="sslDwKeySize">SSL key size as bit.</param>
-        public void Start(string userName, string password, int sslDwKeySize)
+        /// <param name="dwKeySize">SSL key size as bit.</param>
+        public void Start(string userName, string password, int dwKeySize)
         {
             if (userName.Contains('<') || userName.Contains('>') || password.Contains('<') || password.Contains('>'))
                 throw new Exception("UserName and Password can't containt '<' or '>'!");
@@ -88,32 +78,17 @@ namespace dmuka3.CS.Simple.Queuing
 
             if (serverHi == QueuingMessages.SERVER_HI)
             {
-                this._rsaClient = new RSAKey(sslDwKeySize);
-
-                // CLIENT : public_key
-                this._conn.Send(
-                    Encoding.UTF8.GetBytes(
-                        this._rsaClient.PublicKey
-                        ));
-
-                // SERVER : public_key
-                this._rsaServer = new RSAKey(
-                                    Encoding.UTF8.GetString(
-                                        this._rsaClient.Decrypt(
-                                            this._conn.Receive()
-                                        )));
+                this._conn.StartDMUKA3RSA(dwKeySize);
 
                 // CLIENT : HI <user_name> <password>
                 this._conn.Send(
-                    this._rsaServer.Encrypt(
-                        Encoding.UTF8.GetBytes(
-                            $"{QueuingMessages.CLIENT_HI} <{userName}> <{password}>"
-                            )));
+                    Encoding.UTF8.GetBytes(
+                        $"{QueuingMessages.CLIENT_HI} <{userName}> <{password}>"
+                        ));
 
                 var serverResAuth = Encoding.UTF8.GetString(
-                                        this._rsaClient.Decrypt(
-                                            this._conn.Receive()
-                                        ));
+                                        this._conn.Receive()
+                                        );
 
                 if (serverResAuth == QueuingMessages.SERVER_NOT_AUTHORIZED)
                     // - IF AUTH FAIL
@@ -142,23 +117,20 @@ namespace dmuka3.CS.Simple.Queuing
                 // - IF PROCESS TYPE IS "ENQUEUE"
                 //      CLIENT : ENQUEUE
                 this._conn.Send(
-                    this._rsaServer.Encrypt(
-                        Encoding.UTF8.GetBytes(
-                            $"{QueuingMessages.CLIENT_ENQUEUE}"
-                            )));
+                    Encoding.UTF8.GetBytes(
+                        $"{QueuingMessages.CLIENT_ENQUEUE}"
+                        ));
 
                 //      CLIENT : data
                 this._conn.Send(
-                    this._rsaServer.Encrypt(
-                        Encoding.UTF8.GetBytes(
-                            body
-                            )));
+                    Encoding.UTF8.GetBytes(
+                        body
+                        ));
 
                 //      SERVER : END
                 var serverResEnd = Encoding.UTF8.GetString(
-                                        this._rsaClient.Decrypt(
-                                            this._conn.Receive()
-                                        ));
+                                        this._conn.Receive()
+                                        );
 
                 if (serverResEnd.StartsWith(QueuingMessages.SERVER_ERROR))
                     throw new Exception(serverResEnd);
@@ -178,34 +150,30 @@ namespace dmuka3.CS.Simple.Queuing
                 // - IF PROCESS TYPE IS "DEQUEUE"
                 //      CLIENT : DEQUEUE
                 this._conn.Send(
-                    this._rsaServer.Encrypt(
-                        Encoding.UTF8.GetBytes(
-                            $"{QueuingMessages.CLIENT_DEQUEUE}"
-                            )));
+                    Encoding.UTF8.GetBytes(
+                        $"{QueuingMessages.CLIENT_DEQUEUE}"
+                        ));
 
                 //      SERVER : queue_name
                 var serverResQueueName = Encoding.UTF8.GetString(
-                                        this._rsaClient.Decrypt(
                                             this._conn.Receive()
-                                        ));
+                                            );
 
                 if (serverResQueueName.StartsWith(QueuingMessages.SERVER_ERROR))
                     throw new Exception(serverResQueueName);
 
                 //      SERVER : data
                 var serverResData = Encoding.UTF8.GetString(
-                                        this._rsaClient.Decrypt(
-                                            this._conn.Receive()
-                                        ));
+                                        this._conn.Receive()
+                                        );
 
                 if (serverResData.StartsWith(QueuingMessages.SERVER_ERROR))
                     throw new Exception(serverResData);
 
                 //      SERVER : END
                 var serverResEnd = Encoding.UTF8.GetString(
-                                        this._rsaClient.Decrypt(
-                                            this._conn.Receive()
-                                        ));
+                                        this._conn.Receive()
+                                        );
 
                 if (serverResEnd.StartsWith(QueuingMessages.SERVER_ERROR))
                     throw new Exception(serverResEnd);
@@ -231,16 +199,14 @@ namespace dmuka3.CS.Simple.Queuing
                 // - IF PROCESS TYPE IS "DEQUEUE COMPLETED"
                 //      CLIENT : DEQUEUE_COMPLETED <queue_name>
                 this._conn.Send(
-                    this._rsaServer.Encrypt(
-                        Encoding.UTF8.GetBytes(
-                            $"{QueuingMessages.CLIENT_DEQUEUE_COMPLETED} <{queueName}>"
-                            )));
+                    Encoding.UTF8.GetBytes(
+                        $"{QueuingMessages.CLIENT_DEQUEUE_COMPLETED} <{queueName}>"
+                        ));
 
                 //      SERVER : END
                 var serverResEnd = Encoding.UTF8.GetString(
-                                        this._rsaClient.Decrypt(
-                                            this._conn.Receive()
-                                        ));
+                                        this._conn.Receive()
+                                        );
 
                 if (serverResEnd.StartsWith(QueuingMessages.SERVER_ERROR))
                     throw new Exception(serverResEnd);
@@ -258,10 +224,9 @@ namespace dmuka3.CS.Simple.Queuing
             try
             {
                 this._conn.Send(
-                    this._rsaServer.Encrypt(
-                        Encoding.UTF8.GetBytes(
-                            $"{QueuingMessages.CLIENT_CLOSE}"
-                            )));
+                    Encoding.UTF8.GetBytes(
+                        $"{QueuingMessages.CLIENT_CLOSE}"
+                        ));
             }
             catch
             { }
