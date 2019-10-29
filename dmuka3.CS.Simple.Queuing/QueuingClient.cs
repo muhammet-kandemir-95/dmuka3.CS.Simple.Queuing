@@ -66,7 +66,7 @@ namespace dmuka3.CS.Simple.Queuing
         public void Start(string userName, string password, int dwKeySize)
         {
             if (userName.Contains('<') || userName.Contains('>') || password.Contains('<') || password.Contains('>'))
-                throw new Exception("UserName and Password can't containt '<' or '>'!");
+                throw new Exception("UserName and Password can't contain '<' or '>'!");
 
             this._client.Connect(this.HostName, this.Port);
             this._conn = new TCPClientConnection(this._client);
@@ -192,7 +192,7 @@ namespace dmuka3.CS.Simple.Queuing
         public void DequeueCompleted(string queueName)
         {
             if (queueName.Contains('<') || queueName.Contains('>'))
-                throw new Exception("QueueName can't containt '<' or '>'!");
+                throw new Exception("QueueName can't contain '<' or '>'!");
 
             lock (lockObj)
             {
